@@ -21,6 +21,13 @@ test=(30,155,178)
 #load textures
 mario=pygame.image.load('8_Bit_Mario.png')
 floor_brick=pygame.image.load('brick.png')
+yellowBrick=pygame.image.load('Block.png')
+
+#texture sizes
+yellowBrickWidth=50
+marioWidth=50
+yellowBrickHeight=50
+marioHeight=50
 
 #other variables
 origin=0
@@ -28,6 +35,9 @@ origin=0
 #definitions
 def character(x,y):
     gameDisplay.blit(mario, (x,y))
+
+def block(x,y):
+    gameDisplay.blit(yellowBrick, (x,y))
 
 def brick():
 
@@ -38,18 +48,23 @@ def brick():
         gameDisplay.blit(floor_brick, (floor_X,floor_Y))
         floor_X+=50
 
+def collision(obj1X, obj1Y, obj2X, obj2Y, obj2Width, obj2Height):
+    if obj1X<obj2X+obj2Width and obj1X>obj2X and obj1Y<obj2Y:
+        print('Collision!')
+    
 def game_loop():
-
+    
     #variables
     mario_startX = (display_width * 0.45)
     mario_floor_level = display_height-100
     mario_startY = mario_floor_level
     x_change=0
     y_change=0
+    yellowBrickX=origin+300
+    yellowBrickY=origin+400
     
     #game run bool
     gameExit=False
-
     #game loop
     while not gameExit:
 
@@ -64,10 +79,8 @@ def game_loop():
                 if event.key==pygame.K_LEFT:
                     x_change=-5
                 if event.key==pygame.K_a:
-                    if mario_startY>display_height:
+                    if mario_startY<display_height:
                         y_change=5
-                    elif mario_startY<mario_floor_level-100:
-                    y_change= 0
                     
             if event.type==pygame.KEYUP:
                 if event.key==pygame.K_LEFT or event.key==pygame.K_RIGHT:
@@ -76,23 +89,31 @@ def game_loop():
                     if mario_startY<mario_floor_level:
                         y_change=-5
 
+        #jump logic
         if mario_startY<mario_floor_level-100:
-            y_change=0
-        if mario_startY>mario_floor_level+1:
+            y_change=-5
+        if mario_startY>mario_floor_level:
             y_change=0
             mario_startY=mario_floor_level
-        print('mario_startX: ' + str(mario_startX))
-        print('mario_startY: ' + str(mario_startY))
-        print('Y_change: ' + str(y_change))
 
+        #jump logic
         mario_startX+=x_change
         mario_startY-=y_change
+
+        #collision logic
+        collision(mario_startX, mario_startY, yellowBrickX, yellowBrickY, yellowBrickWidth, yellowBrickHeight)
         
+        #logs
+       # print('mario_startX: ' + str(mario_startX))
+       # print('mario_startY: ' + str(mario_startY))
+       # print('Y_change: ' + str(y_change))
+
         #mario_startY=floor_level
             
         #fill, draw and display
         gameDisplay.fill(test)
         brick()
+        block(yellowBrickX, yellowBrickY)
         character(mario_startX,mario_startY)
         pygame.display.update()
         clock.tick(60)
